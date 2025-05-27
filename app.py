@@ -1,0 +1,70 @@
+from flask import Flask, jsonify, request
+from crud import conexaoBD, read, createUpdateDelete
+from auth import get_token, init_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import CORS
+
+app = Flask(__name__)
+init_jwt(app)
+CORS(app)
+
+@app.route("/api")
+def index():
+    return "Home page"
+
+@app.route("/api/users", methods=['GET'])
+@jwt_required()
+def get_users():
+    conexaoBD()
+
+    usuarios = read("SELECT * FROM usuarios", None)
+    
+    data = []
+
+    for usuario in usuarios:
+        usuario = {
+            'id': usuario['id'],
+            'nome': usuario['nome'],    
+            'matricula': usuario['matricula'],
+            'tipoUsuario': usuario['tipoUsuario'],
+            'nivelGerencia': usuario['nivelGerencia'],
+            'chave': usuario['chave'],
+            'ativo': usuario['ativo']
+        }
+        data.append(usuario)
+
+    return jsonify(data)
+
+
+@app.route("/api/users/<int:id>", methods=['GET'])
+@jwt_required()
+def get_user(id):
+    conexaoBD()
+
+    print(id)
+
+    usuario = read("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = usuario[0] if usuario else None
+
+    data = {
+        'id': usuario['id'],
+        'nome': usuario['nome'],    
+        'matricula': usuario['matricula'],
+        'tipoUsuario': usuario['tipoUsuario'],
+        'nivelGerencia': usuario['nivelGerencia'],
+        'chave': usuario['chave'],
+        'ativo': usuario['ativo']
+    }
+    
+    return jsonify(data)
+
+@app.route("/api/login", methods=['GET', 'POST'])
+def login():
+    data = request.json
+    USERNAME = data.get('matricula')
+    PASSWORD = data.get('senha')
+
+    response = get_token(USERNAME, PASSWORD)
+
+    return response
+    
