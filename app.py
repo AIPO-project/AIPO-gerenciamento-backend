@@ -36,27 +36,28 @@ def get_users():
     return jsonify(data)
 
 
-@app.route("/api/users/<int:id>", methods=['GET'])
+@app.route("/api/users/<matricula>", methods=['GET'])
 @jwt_required()
-def get_user(id):
-    conexaoBD()
+def get_user(matricula):
+    try:
+        conexaoBD()
+        
+        usuario = read("SELECT * FROM usuarios WHERE matricula = %s", (matricula,))
+        usuario = usuario[0] if usuario else None
 
-    print(id)
-
-    usuario = read("SELECT * FROM usuarios WHERE id = %s", (id,))
-    usuario = usuario[0] if usuario else None
-
-    data = {
-        'id': usuario['id'],
-        'nome': usuario['nome'],    
-        'matricula': usuario['matricula'],
-        'tipoUsuario': usuario['tipoUsuario'],
-        'nivelGerencia': usuario['nivelGerencia'],
-        'chave': usuario['chave'],
-        'ativo': usuario['ativo']
-    }
-    
-    return jsonify(data)
+        data = {
+            'id': usuario['id'],
+            'nome': usuario['nome'],    
+            'matricula': usuario['matricula'],
+            'tipoUsuario': usuario['tipoUsuario'],
+            'nivelGerencia': usuario['nivelGerencia'],
+            'chave': usuario['chave'],
+            'ativo': usuario['ativo']
+        }
+        
+        return jsonify(data)
+    except:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
 
 @app.route("/api/login", methods=['GET', 'POST'])
 def login():
