@@ -7,7 +7,7 @@ class UsuarioController:
     @staticmethod
     def listar_usuarios():
         query = sa.select(Usuario)
-        usuarios = db.session.scalars(query).all()  # coloquei .all() para trazer lista
+        usuarios = db.session.scalars(query).all() 
         return usuarios
 
     @staticmethod
@@ -15,7 +15,6 @@ class UsuarioController:
         query = sa.select(Usuario).where(Usuario.matricula == matricula)
         usuario = db.session.scalars(query).first()
         return usuario
-
 
     @staticmethod
     def atualizar_usuario(matricula, usuario_atualizado):

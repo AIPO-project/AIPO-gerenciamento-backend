@@ -1,8 +1,12 @@
 from app import app
 from app.controllers.usuarioController import UsuarioController
+from app.controllers.salasController import SalasController
+from app.controllers.authenticationController import AuthController
+from flask_jwt_extended import jwt_required
 from flask import request, jsonify
 
-@app.route("/api/usuario", methods=["GET"])
+@app.route("/api/usuarios", methods=["GET"])
+@jwt_required()
 def listar_usuarios():
     usuarios = UsuarioController.listar_usuarios()
     lista = [
@@ -20,6 +24,7 @@ def listar_usuarios():
     return jsonify(lista)
 
 @app.route("/api/usuario/<matricula>", methods=["GET"])
+@jwt_required()
 def buscar_usuario(matricula):
     usuario = UsuarioController.buscar_por_matricula(matricula)
     if not usuario:
@@ -36,6 +41,7 @@ def buscar_usuario(matricula):
     })
 
 @app.route("/api/usuario/<matricula>", methods=["PUT"])
+@jwt_required()
 def atualizar_usuario(matricula):
     print(f"Atualizando usuário com matrícula: {matricula}")
     usuario = UsuarioController.buscar_por_matricula(matricula)
@@ -56,3 +62,42 @@ def atualizar_usuario(matricula):
         return jsonify({"message": "Usuário atualizado com sucesso"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/salas", methods=["GET"])
+@jwt_required()
+def listar_salas():
+    salas = SalasController.listar_salas()
+    lista = [
+        {
+            "id": s.id,
+            "codigo": s.codigo,
+            "nome": s.nome,
+            "local": s.local
+        }
+        for s in salas
+    ]
+    return jsonify(lista)
+
+@app.route("/api/sala/<matricula>", methods=["GET"])
+@jwt_required()
+def buscar_sala(matricula):
+    salas = SalasController.salas_do_usuario(matricula)
+    print(salas)
+    lista = [
+        {
+            "id": s.id,
+            "codigo": s.codigo,
+            "nome": s.nome,
+            "local": s.local
+        }
+        for s in salas
+    ]
+    return jsonify(lista)
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    return AuthController.login()
+
+@app.route("/api/protected", methods=["GET"])
+def protected():
+    return AuthController.protected()

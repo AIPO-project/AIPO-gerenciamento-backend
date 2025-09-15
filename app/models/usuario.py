@@ -1,7 +1,10 @@
+from __future__ import annotations
 from app import db
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from typing import Optional
+
+from app.models.autorizacoes import Autorizacao
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios' 
@@ -13,3 +16,5 @@ class Usuario(db.Model):
     nivelGerencia: so.Mapped[Optional[str]] = so.mapped_column(sa.String(45))
     chave: so.Mapped[Optional[str]] = so.mapped_column(sa.String(45), unique=True)
     ativo: so.Mapped[Optional[bool]] = so.mapped_column(sa.Boolean, server_default=sa.text("1"))
+    
+    autorizacoes: so.Mapped[list["Autorizacao"]] = so.relationship(back_populates="usuario")
