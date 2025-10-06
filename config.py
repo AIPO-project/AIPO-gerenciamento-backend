@@ -1,8 +1,8 @@
-import secrets
-from datetime import timedelta
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Config:
-    SECRET_KEY = secrets.token_hex(16)
-    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:Pipoca.26@127.0.0.1:3306/aipo"
-    JWT_SECRET_KEY = "sua_chave_super_secreta"
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv("SECRET_KEY")

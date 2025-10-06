@@ -1,17 +1,23 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
-from config import Config
+from .extensions import db, migrate
+from .routes.users import bp_users
+from .routes.salas import bp_salas
+from .routes.acessos import bp_acessos
+from .routes.autorizacoes import bp_autorizacoes
 
-# Cria app único
-app = Flask(__name__)
-app.config.from_object(Config)
+def create_app(config_object="config.Config"):
+    app = Flask(__name__)
+    app.config.from_object(config_object)
 
-# Extensões
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
-CORS(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
+    CORS(app)
 
-# Importa rotas e models depois
-from app import routes, models
+    # registra blueprints
+    app.register_blueprint(bp_users, url_prefix="/api/v1")
+    app.register_blueprint(bp_salas, url_prefix="/api/v1")
+    app.register_blueprint(bp_acessos, url_prefix="/api/v1")
+    app.register_blueprint(bp_autorizacoes, url_prefix="/api/v1")
+
+    return app
